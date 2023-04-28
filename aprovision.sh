@@ -23,6 +23,11 @@ EOF
 # Actualizar el sistema
 sudo apt-get update
 sudo apt-get upgrade -y
+sudo apt install apache2
+sudo systemctl enable apache2
+sudo systemctl start apache2
+sudo apt install nodejs
+sudo apt install npm
 
 # Instalar dependencias necesarias para Consul
 sudo apt-get install -y unzip curl gnupg2 apt-transport-https lsb-release
