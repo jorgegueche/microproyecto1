@@ -44,3 +44,42 @@ sudo usermod -aG lxd vagrant
 
 # Iniciar el servicio de LXD/LXC
 sudo systemctl start snap.lxd.daemon.service
+#!/bin/bash
+
+# Install HAProxy
+apt-get update
+apt-get install -y haproxy
+
+# Configure HAProxy
+cat << EOF > /etc/haproxy/haproxy.cfg
+global
+  log /dev/log    local0
+  log /dev/log    local1 notice
+  chroot /var/lib/haproxy
+  stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
+  stats timeout 30s
+  user haproxy
+  group haproxy
+  daemon
+
+defaults
+  log     global
+  mode    http
+  option  httplog
+  option  dontlognull
+  timeout connect 5000
+  timeout client  50000
+  timeout server  50000
+
+frontend http-in
+  bind *:80
+  default_backend servers
+
+backend servers
+  balance roundrobin
+  server backend1 192.168.100.2:80 check
+  server backend2 192.168.100.3:80 check
+EOF
+
+# Restart HAProxy
+systemctl restart haproxy
